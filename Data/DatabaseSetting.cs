@@ -14,6 +14,7 @@ namespace ChainStoreApi.Data;
         public string CalendarWorkCollectionName {get;set;} = null!;
         public string RefreshTokenCollectionName {get;set;} = null!;
         public string ImportInventoryCollectionName {get;set;} = null!;
+        public string InventoryManagerCollectionName {get;set;} = null!;
 
 
 

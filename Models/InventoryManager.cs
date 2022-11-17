@@ -13,5 +13,10 @@ public class InventoryManager
 
     public string? idStore {get;set;}
 
-    public List<ProductInInventory>? product {get;set;}
+    public List<ProductInInventory>? productInStore {get;set;}
+
+    public InventoryManager(string idStore, List<ProductInInventory> product){
+        this.idStore = idStore;
+        this.productInStore = product;
+    }
 }

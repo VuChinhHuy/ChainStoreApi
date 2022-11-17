@@ -33,4 +33,10 @@ public class ImportInventoryController : ControllerBase
         return;
         
     }
+    [HttpGet("inventory/{idStore:length(24)}")]
+    public async Task<InventoryManager?> GetProductInStore(string idStore)
+    {
+        return await _importInventoryService!.getProductInStore(idStore);
+    }
+
 }

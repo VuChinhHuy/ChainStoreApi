@@ -49,6 +49,7 @@ builder.Services.AddSingleton<RefreshTokenGenerator>();
 builder.Services.AddSingleton<TimeWorkService>();
 builder.Services.AddSingleton<CalendarWorkService>();
 builder.Services.AddSingleton<ImportInventoryService>();
+builder.Services.AddSingleton<InventoryManagerService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

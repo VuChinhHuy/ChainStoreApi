@@ -11,6 +11,10 @@ namespace ChainStoreApi.Data;
         public string CategoryCollectionName {get;set;} = null!;
         public string PartnerCollectionName {get;set;} = null!;
         public string TimeWorkCollectionName {get;set;} = null!;
+        public string CalendarWorkCollectionName {get;set;} = null!;
         public string RefreshTokenCollectionName {get;set;} = null!;
+        public string ImportInventoryCollectionName {get;set;} = null!;
+
+
 
     }

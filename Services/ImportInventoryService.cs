@@ -38,4 +38,8 @@ public class ImportInventoryService
 
     public async Task<InventoryManager?> getProductInStore (string idStore) => await _inventory!.GetInventoryManagerAsync(idStore);
 
+    // public async Task<List<Stor>> getProductInStoreDiff(string idProduct) {
+
+    // }
+
 }

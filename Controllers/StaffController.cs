@@ -25,7 +25,17 @@ namespace ChainStoreApi.Controllers;
         [HttpGet()]
         public async Task<List<Staff>> GetStaffOfStore(string idstore) => await _staffService.GetStaffAsyncStore(idstore);
 
-        [HttpGet("{id:length(24)}")]
+        [HttpGet("profileuser/{id:length(24)}")]
+        public async Task<ActionResult<Staff>> GetProfileUser(string id)
+    {
+        var user = await _staffService.GetStaffWithAccountIdAsync(id);
+        if (user is null)
+            return BadRequest("Lỗi");
+        return user;
+    }
+
+
+    [HttpGet("{id:length(24)}")]
         public async Task<ActionResult<ProfileStaff>> Get(string id)
         {
             

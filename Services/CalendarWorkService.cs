@@ -19,18 +19,15 @@ namespace ChainStoreApi.Services;
             _calendarworkCollection = mongoDatabase.GetCollection<CalendarWork>(databaseSetting.Value.CalendarWorkCollectionName);
         }
 
-        public async Task<CalendarWork> GetCalendarWorkAsync(string idStore) => await _calendarworkCollection.Find(x=>x.idStore == idStore).FirstAsync();
+        
+        public async Task<CalendarWork> GetCalendarWorkAsync(string idStore) => await _calendarworkCollection.Find(x=>x.idStore == idStore).FirstOrDefaultAsync();
         // create
         public async Task CreateCalendarWorkAsync(CalendarWork calendarWork) => await _calendarworkCollection.InsertOneAsync(calendarWork);
 
         // update
+        public async Task updateCalendarWorkAsync(CalendarWork calendarWork) => await _calendarworkCollection.ReplaceOneAsync(x => x.id == calendarWork.id, calendarWork);
+        
 
-        // remove
-
-        //  staff check in 
-
-        // staff check out
-
-        // public async Task<TimeWork> GetTimeWorkAsync 
+        
     
     }

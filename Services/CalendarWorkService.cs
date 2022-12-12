@@ -27,7 +27,9 @@ namespace ChainStoreApi.Services;
         // update
         public async Task updateCalendarWorkAsync(CalendarWork calendarWork) => await _calendarworkCollection.ReplaceOneAsync(x => x.id == calendarWork.id, calendarWork);
         
-
+        // public async Task checkin(){
+        //     _calendarworkCollection.FindOneAndUpdate(x=>x.id=="",)
+        // }
         
     
     }

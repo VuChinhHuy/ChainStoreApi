@@ -15,6 +15,11 @@ namespace ChainStoreApi.Data;
         public string RefreshTokenCollectionName {get;set;} = null!;
         public string ImportInventoryCollectionName {get;set;} = null!;
         public string InventoryManagerCollectionName {get;set;} = null!;
+        public string CustomerCollectionName {get;set;} = null!;
+
+        public string OrderCollectionName {get;set;} = null!;
+
+
 
 
 

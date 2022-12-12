@@ -63,6 +63,9 @@ builder.Services.AddSingleton<TimeWorkService>();
 builder.Services.AddSingleton<CalendarWorkService>();
 builder.Services.AddSingleton<ImportInventoryService>();
 builder.Services.AddSingleton<InventoryManagerService>();
+builder.Services.AddSingleton<CustomerService>();
+builder.Services.AddSingleton<OrderService>();
+builder.Services.AddSingleton<RevenueService>();
 var app = builder.Build();
 app.UseCors("AllowOrigin");
 // Configure the HTTP request pipeline.

@@ -11,6 +11,7 @@ public class Product
         [BsonElement("_id")]
         public string? id {get; set;}=null!;
         public string? name {get; set;}=null!;
+        public int? purchasePrice { get; set;}
         
         public int? price {get;set;}
 

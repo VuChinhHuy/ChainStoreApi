@@ -16,4 +16,15 @@ public  class DatetimeConvert
     {
         return dateTime.Year.ToString();
     }
+
+    public static List<DateTime> getWeekNow()
+    {
+        List<DateTime> list = new List<DateTime>();
+        var dayOfWeek = (int)DateTime.Today.DayOfWeek;
+        var monday = DateTime.Today.AddDays(-dayOfWeek + (int)DayOfWeek.Monday);
+        var dayThisWeek = Enumerable.Range(0,7)
+        .Select(d=> monday.AddDays(d)).ToList();
+        list = dayThisWeek;
+        return list;
+    }
 }

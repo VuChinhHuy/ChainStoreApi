@@ -1,6 +1,7 @@
 using ChainStoreApi.Data;
 using ChainStoreApi.Models;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 
@@ -27,9 +28,20 @@ namespace ChainStoreApi.Services;
         // update
         public async Task updateCalendarWorkAsync(CalendarWork calendarWork) => await _calendarworkCollection.ReplaceOneAsync(x => x.id == calendarWork.id, calendarWork);
         
-        // public async Task checkin(){
-        //     _calendarworkCollection.FindOneAndUpdate(x=>x.id=="",)
+        // public async Task checkin(String idStore, TimeShift timeShift, time time){
+        //     DateTime date = DateTime.Now;
+        //     String year = date.Year.ToString();
+        //     String month = date.Month.ToString();
+        //     String day = date.Day.ToString();
+        //     var reuslt =  _calendarworkCollection.FindOneAndUpdateAsync(
+        //         Builders<CalendarWork>.Filter.Where(x  => x.idStore == idStore),
+        //         Builders<CalendarWork>.Update
+        //         .Set(rec => rec.year.Find(x=> x.year == year)!.month.Find(x=>x.month == month)!.
+        //         day.Find(x=>x.day == day)!.check.Find(x=>x.timeShift == timeShift)!.checkStart, time),
+        //         options: new FindOneAndUpdateOptions<CalendarWork> {
+        //             ReturnDocument = ReturnDocument.After
+        //         }
+        //     );
         // }
         
-    
     }

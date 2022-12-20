@@ -2,13 +2,8 @@ using ChainStoreApi.Models;
 using ChainStoreApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.Extensions.Options;
-using System.Security.Cryptography;
-using ChainStoreApi.Handler;
-using System.Text;
 using System.Text.Json;
+
 
 namespace ChainStoreApi.Controllers;
 
@@ -181,9 +176,6 @@ public class calendarworkController : ControllerBase
             
             await _calendarWorkService.CreateCalendarWorkAsync(calendarWorkNew);
 
-
-            Console.WriteLine(calendar!.id);
-
             return Content("Thành công");
             
         } 
@@ -309,10 +301,15 @@ public class calendarworkController : ControllerBase
     
     // GET WORK IN WEEK
     [HttpGet("calanderinweek/{idStore:length(24)}")]
-    public async Task<ActionResult> getCalendarInWeek(String idStore)
+    public async Task<ActionResult<Object>> getCalendarInWeek(String idStore)
     {
-        
+        try
+        {
+
+        List<dynamic > result = new List<dynamic>();
+
         var calendar = await _calendarWorkService.GetCalendarWorkAsync(idStore);
+        
         var listDayInWeek = DatetimeConvert.getWeekNow();
         foreach(var date in listDayInWeek.ToList())
         {
@@ -320,18 +317,223 @@ public class calendarworkController : ControllerBase
             String month = date.Month.ToString();
             String day = date.Day.ToString();
 
-            
+            if(calendar.year.Find(x=>x.year == year) != null)
+            {
+                if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!= null)
+                {
+                    if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day) != null)
+                    {
+                        var item = calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day)!.check;
+                        Dictionary<string, dynamic> itemResult = new Dictionary<string, dynamic>{["time"] = date.ToString("yyyy-MM-dd'T'HH:mm:ss.000"), ["timeshift"] = item};
+                        result.Add(itemResult);
+                    }
+                    else
+                    {
+                        Dictionary<string, dynamic> itemResult = new Dictionary<string, dynamic>{["time"] = date.ToString("yyyy-MM-dd'T'HH:mm:ss.000"), ["timeshift"] = ""};
+                        result.Add(itemResult);
+                    }
+                }
+                else
+                {
+                    Dictionary<string, dynamic> itemResult = new Dictionary<string, dynamic>{["time"] = date.ToString("yyyy-MM-dd'T'HH:mm:ss.000"), ["timeshift"] = ""};
+                    result.Add(itemResult);
+                }
+            }
+            else{
+                Dictionary<string, dynamic> itemResult = new Dictionary<string, dynamic>{["time"] = date.ToString("yyyy-MM-dd'T'HH:mm:ss.000"), ["timeshift"] = ""};
+                result.Add(itemResult);
+            }
+        }
+        if (result.IsNullOrEmpty())
+
+            return BadRequest("Không có lịch");
+        return result.ToList();
+        }
+        catch (Exception)
+        {
+            return BadRequest("Lỗi");
+        }
+    }
+    // GET WORK IN WEEK OF STAFF
+    [HttpGet("calendarinweek/staff")]
+    public async Task<ActionResult<Object>> getCalendarInWeek([FromQuery] String storeId, String idStaff)
+    {
+        try
+        {
+
+        List<dynamic > result = new List<dynamic>();
+
+        var calendar = await _calendarWorkService.GetCalendarWorkAsync(storeId);
+        
+        var listDayInWeek = DatetimeConvert.getWeekNow();
+        foreach(var date in listDayInWeek.ToList())
+        {
+            String year = date.Year.ToString();
+            String month = date.Month.ToString();
+            String day = date.Day.ToString();
+
+            if(calendar.year.Find(x=>x.year == year) != null)
+            {
+                if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!= null)
+                {
+                    if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day) != null)
+                    {
+                        
+                        var item = calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day)!.check;
+                        foreach (var check in item.ToList())
+                        {
+                            List<dynamic> checkItem = new List<dynamic>();
+                            if(check.staff.id == idStaff)
+                            {   
+                                checkItem.Add(check);
+                                
+                            }
+                            Dictionary<string, dynamic> itemResult = new Dictionary<string, dynamic>{["time"] = date.ToString("yyyy-MM-dd'T'HH:mm:ss.000"), ["timeshift"] = checkItem};
+                            result.Add(itemResult);
+                        }
+                    }
+                    else
+                    {
+                        Dictionary<string, dynamic> itemResult = new Dictionary<string, dynamic>{["time"] = date.ToString("yyyy-MM-dd'T'HH:mm:ss.000"), ["timeshift"] = ""};
+                        result.Add(itemResult);
+                    }
+                }
+                else
+                {
+                    Dictionary<string, dynamic> itemResult = new Dictionary<string, dynamic>{["time"] = date.ToString("yyyy-MM-dd'T'HH:mm:ss.000"), ["timeshift"] = ""};
+                    result.Add(itemResult);
+                }
+            }
+            else{
+                Dictionary<string, dynamic> itemResult = new Dictionary<string, dynamic>{["time"] = date.ToString("yyyy-MM-dd'T'HH:mm:ss.000"), ["timeshift"] = ""};
+                result.Add(itemResult);
+            }
+        }
+        if (result.IsNullOrEmpty())
+
+            return BadRequest("Không có lịch");
+        return result.ToList();
+        }
+        catch (Exception)
+        {
+            return BadRequest("Lỗi");
+        } 
+    }
+    // CHECK IN
+    [HttpPost("/checkin")]
+    public async Task<ActionResult> checkin([FromBody] Dictionary<String,dynamic> data)
+    {
+        try
+        {
+            DateTime now = DateTime.Now;
+            String year = now.Year.ToString();
+            String month = now.Month.ToString();
+            String day = now.Day.ToString();
+            Staff staff =  JsonSerializer.Deserialize<Staff>(data["staff"]);
+            time time =  JsonSerializer.Deserialize<time>(data["timecheck"]);
+            TimeShift timeShift =  JsonSerializer.Deserialize<TimeShift>(data["timeShift"]);
+            var calendar = await _calendarWorkService.GetCalendarWorkAsync(staff.storeId);
+
+            if(calendar.year.Find(x=>x.year == year) != null)
+            {
+                if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!= null)
+                {
+                    if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day) != null)
+                    {
+                        
+                        if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day)!.check.Find(x=>x.staff.id == staff.id && x.timeShift!.name == timeShift.name) != null)
+                        {
+                            if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day)!.check.Find(x=>x.staff.id == staff.id && x.timeShift!.name == timeShift.name)!.checkStart == null) 
+                            {
+                                calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day)!.check.Find(x=>x.staff.id == staff.id && x.timeShift!.name == timeShift.name)!.checkStart = time;
+                                await _calendarWorkService.updateCalendarWorkAsync(calendar);
+                                return Content("OK");
+                            }
+                            else
+                            {
+                                return Content("Đã CHECK IN ở ca" + timeShift.name + " rồi!");
+
+                            }
+                            
+                        }  
+                        return Content("Không có ca" + timeShift.name + " làm giờ này!");   
+
+                    }
+                    else
+                    {
+                        return Content("Không có lịch làm!");
+
+                    }
+                }
+                else
+                {
+                    return Content("Không có lịch làm!");
+
+                }
+            }
+            else
+            {
+                return Content("Không có lịch làm!");
+
+            }
 
         }
-
-        return BadRequest("Lỗi");
+        catch (Exception)
+        {
+            return BadRequest("Lỗi!");
+        }
     }
 
-    // CHECK IN
-
     // CHECK OUT
+    [HttpPost("/checkout")]
+    public async Task<ActionResult> checkout([FromBody] Dictionary<String,dynamic> data)
+    {
+        try
+        {
+            DateTime now = DateTime.Now;
+            String year = now.Year.ToString();
+            String month = now.Month.ToString();
+            String day = now.Day.ToString();
+            Staff staff =  JsonSerializer.Deserialize<Staff>(data["staff"]);
+            time time =  JsonSerializer.Deserialize<time>(data["timecheck"]);
+            TimeShift timeShift =  JsonSerializer.Deserialize<TimeShift>(data["timeShift"]);
+            var calendar = await _calendarWorkService.GetCalendarWorkAsync(staff.storeId);
 
+            if(calendar.year.Find(x=>x.year == year) != null)
+            {
+                if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!= null)
+                {
+                    if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day) != null)
+                    {
+                        if(calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day)!.check.Find(x=>x.staff.id == staff.id) != null)   
+                        calendar.year.Find(x=>x.year == year)!.month.Find(x=>x.month== month)!.day.Find(x=>x.day == day)!.check.Find(x=>x.staff.id == staff.id && x.timeShift!.name == timeShift.name)!.checkEnd = time;
+                            await _calendarWorkService.updateCalendarWorkAsync(calendar);
+                        return Content("OK");
+                    }
+                    else
+                    {
+                        return Content("Không có lịch làm!");
 
+                    }
+                }
+                else
+                {
+                    return Content("Không có lịch làm!");
+
+                }
+            }
+            else
+            {
+                return Content("Không có lịch làm!");
+
+            }
+
+        }
+        catch (Exception)
+        {
+            return BadRequest("Lỗi!");
+        }
+    }
 
 
 }

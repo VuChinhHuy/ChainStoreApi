@@ -38,8 +38,21 @@ public class ImportInventoryService
 
     public async Task<InventoryManager?> getProductInStore (string idStore) => await _inventory!.GetInventoryManagerAsync(idStore);
 
-    // public async Task<List<Stor>> getProductInStoreDiff(string idProduct) {
-
-    // }
+    public async Task<List<Dictionary<String,dynamic>>> getProductInStoreDiff(string idProduct) {
+        var l = await _inventory.GetAllInventory();
+        List<Dictionary<String,dynamic>> result = new List<Dictionary<String,dynamic>>();
+        foreach (var item in l.ToList())
+        {
+            foreach (var product in item.productInStore!.ToList())
+            {
+                if(product.product!.id == idProduct)
+                {
+                    result.Add( new Dictionary<String, dynamic>{["idStore"] = item!.idStore!, ["count"] = product!.count!});
+                    break;
+                }
+            }
+        }
+        return result.ToList();
+    }
 
 }

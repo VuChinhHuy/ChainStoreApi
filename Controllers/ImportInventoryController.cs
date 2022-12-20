@@ -38,5 +38,10 @@ public class ImportInventoryController : ControllerBase
     {
         return await _importInventoryService!.getProductInStore(idStore);
     }
+    [HttpGet("getproductinstorediff/{idProduct:length(24)}")]
+    public async Task<List<Dictionary<String,dynamic>>> getProductInStoreDiff(string idProduct)
+    {
+        return await _importInventoryService.getProductInStoreDiff(idProduct);
+    } 
 
 }

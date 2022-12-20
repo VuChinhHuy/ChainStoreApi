@@ -17,8 +17,11 @@ public class InventoryManagerService
 
             _inventoryManager = mongoDatabase.GetCollection<InventoryManager>(databaseSetting.Value.InventoryManagerCollectionName);
         }
+    
     // create
     public async Task createCountProduct(InventoryManager inven) => await _inventoryManager.InsertOneAsync(inven);
+
+    public async Task<List<InventoryManager>> GetAllInventory() => await _inventoryManager.Find(_ => true).ToListAsync();
     // find
     public async Task<InventoryManager?> GetInventoryManagerAsync(string idStore) => await _inventoryManager.Find(x=> x.idStore == idStore).FirstOrDefaultAsync();
     public async Task updateCountProduct(string idStore, ImportInventory importIn)

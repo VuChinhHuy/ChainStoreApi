@@ -12,6 +12,7 @@ public class orderController : ControllerBase
     private readonly OrderService _orderService;
     public orderController(OrderService orderService) => _orderService = orderService;
 
+    // lấy ra các trạng thái của hoá đơn bên enum list
     [HttpGet("GetBillStatus")]
     public IActionResult GetBillStatus()
     {
@@ -23,17 +24,7 @@ public class orderController : ControllerBase
         }).ToList();
         return new OkObjectResult(enums);
     }
-    // [HttpPut("UpdateStatus/{id:length(24)}")]
-    // public IActionResult UpdateStatus(string id, BillStatus billStatus)
-    // {
-    //     var status = _orderService.GetOrderAsync(id);
-    //     if (status is null)
-    //     {
-    //         return NotFound();
-    //     }
-    //     _orderService.UpdateStatus(id, billStatus);
-    //     return new OkResult();
-    // }
+    // lấy ra các định dạng của phương thức thanh toán từ enum list
     [HttpGet("GetPaymentMethos")]
     public IActionResult GetPaymentMethos()
     {
@@ -45,30 +36,15 @@ public class orderController : ControllerBase
         }).ToList();
         return new OkObjectResult(enums);
     }
-    // [HttpPut("UpdatePaymentMethos/{id:length(24)}")]
-    // public IActionResult UpdatePaymentMethos(string id, PaymentMethos paymentMethos)
-    // {
-    //     var status = _orderService.GetOrderAsync(id);
-    //     if (status is null)
-    //     {
-    //         return NotFound();
-    //     }
-    //     _orderService.UpdatePaymentMethos(id, paymentMethos);
-    //     return new OkResult();
-    // }
+    // tìm kiếm thông tin hoá đơn dựa vào keyword, ngày tạo
     [HttpGet("Keyword")]
     public async Task<ActionResult<Order>> searchkeyword(string? startDate, string? endDate, string? keyword)
     {
         var order = await _orderService.SearchKeyword(startDate, endDate, keyword);
         return Ok(order);
     }
-    // [HttpGet("Keyword")]
-    // public async Task<ActionResult<Order>> searchkeyword(string? keyword)
-    // {
-    //     var order = await _orderService.SearchKeyword(keyword);
-    //     return Ok(order);
-    // }
 
+    // lấy ra tất cả hoá đơn
     [HttpGet]
     public async Task<List<Order>> Get() => await _orderService.GetOrderAsync();
 

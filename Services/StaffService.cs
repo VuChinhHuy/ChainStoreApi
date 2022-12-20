@@ -23,7 +23,7 @@ namespace ChainStoreApi.Services;
         }
 
         public async Task<Staff?> GetStaffLogin(string accountId) => await _staffCollection.Find(x=>x.accountId == accountId).FirstOrDefaultAsync();
-        public async Task<List<Staff>> GetStaffAsyncStore(string idstore)=> await _staffCollection.Find(x => x.storeId == idstore).ToListAsync();
+        public async Task<List<Staff>> GetStaffAsync()=> await _staffCollection.Find(x => true).ToListAsync();
         public async Task<Staff?> GetStaffAsync(string id) => await _staffCollection.Find(x => x.id == id).FirstOrDefaultAsync();
         public async Task<Staff?> GetStaffWithAccountIdAsync(string accountid) => await _staffCollection.Find(x => x.accountId == accountid).FirstOrDefaultAsync();
         

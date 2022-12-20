@@ -23,7 +23,11 @@ namespace ChainStoreApi.Controllers;
         }
         
         [HttpGet()]
-        public async Task<List<Staff>> GetStaffOfStore(string idstore) => await _staffService.GetStaffAsyncStore(idstore);
+        public async Task<List<Staff>> Get() => await _staffService.GetStaffAsync();
+
+        [HttpGet("{idstore}")]
+        public async Task<List<Staff>> GetStaffOfStore(string idstore) => await _staffService.GetStaffInStoreAsync(idstore);
+
 
         [HttpGet("profileuser/{id:length(24)}")]
         public async Task<ActionResult<Staff>> GetProfileUser(string id)

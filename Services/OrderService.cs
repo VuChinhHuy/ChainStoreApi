@@ -35,7 +35,6 @@ public class OrderService
     
     public async Task RemoveOrderAsync(string id) => await _OrderCollection.DeleteOneAsync(x => x.id == id);
 
-    
     public async Task<List<Order>> SearchKeyword(string? startDate, string? endDate, string? keyword)
     {       
         var query = await _OrderCollection.Find(_ => true).ToListAsync();
@@ -52,8 +51,8 @@ public class OrderService
         }
         if (!string.IsNullOrEmpty(keyword))
         {
-            query = query.Where(x => x.CustomerName.Contains(keyword) ||
-                            x.CustomerPhone.Contains(keyword)
+            query = query.Where(x => (x.customer!.first_name + x.customer.last_name ).Contains(keyword) ||
+                            x.customer!.phone!.Contains(keyword)
                             ).ToList();
         }
         return query;

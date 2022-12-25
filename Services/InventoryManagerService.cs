@@ -24,6 +24,8 @@ public class InventoryManagerService
     public async Task<List<InventoryManager>> GetAllInventory() => await _inventoryManager.Find(_ => true).ToListAsync();
     // find
     public async Task<InventoryManager?> GetInventoryManagerAsync(string idStore) => await _inventoryManager.Find(x=> x.idStore == idStore).FirstOrDefaultAsync();
+
+    public async Task UpdateInventoryManager(string id, InventoryManager update) => await _inventoryManager.ReplaceOneAsync(x=> x.id == id ,update);
     public async Task updateCountProduct(string idStore, ImportInventory importIn)
     {
         var inven = await GetInventoryManagerAsync(idStore);

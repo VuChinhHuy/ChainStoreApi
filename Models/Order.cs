@@ -16,14 +16,13 @@ public class Order
 
     
     public Staff OrderStaff { get; set; } = null!;
-    public string CustomerName { get; set; } = null!;
-    public string CustomerEmail { get; set; } = null!;
-    public string CustomerPhone { get; set; } = null!;
-    public string CustomerMessage { get; set; } = null!;
-    public string CustomerAddress { get; set; } = null!;
+    
+    public Customer? customer {get;set;}
     public BillStatus BillStatus { get; set; }
     public PaymentMethos PaymentMethos { get; set; }
     public List<OrderDetails> OrderDetails { get; set; } = null!;
+
+// Tổng tiền của bill
     public string TotalRecord { get; set; } = null!;
 }
 

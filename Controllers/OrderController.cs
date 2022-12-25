@@ -10,7 +10,12 @@ namespace ChainStoreApi.Controllers;
 public class orderController : ControllerBase
 {
     private readonly OrderService _orderService;
-    public orderController(OrderService orderService) => _orderService = orderService;
+
+    private readonly InventoryManagerService _importService;
+    public orderController(OrderService orderService,InventoryManagerService importService) { 
+        _orderService = orderService;
+        _importService = importService;
+    }
 
     // lấy ra các trạng thái của hoá đơn bên enum list
     [HttpGet("GetBillStatus")]
@@ -62,9 +67,27 @@ public class orderController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Createorder(Order order)
     {
+        
+        var productIn = await _importService.GetInventoryManagerAsync(order.OrderStaff.storeId);
+        
         await _orderService.CreateOrderAsync(order);
+        var result = CreatedAtAction(nameof(Get), new { id = order.id }, order);
 
-        return CreatedAtAction(nameof(Get), new { id = order.id }, order);
+        foreach (var pro in order.OrderDetails.ToList())
+        {
+            foreach (var item in productIn!.productInStore!.ToList())
+            {
+                if(pro.Product!.id == item.product!.id )
+                {
+                    item.count = item.count - pro.count;
+                    order.OrderDetails.Remove(pro);
+                    break;
+                }
+            }
+        }
+        await _importService.UpdateInventoryManager(productIn!.id!, productIn);
+
+        return result;
     }
 
     [HttpPut("{id:length(24)}")]

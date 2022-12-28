@@ -13,6 +13,8 @@ namespace ChainStoreApi.Services;
 public class OrderService
 {
     private readonly IMongoCollection<Order> _OrderCollection;
+
+    private readonly IMongoCollection<InventoryManager> _importMangagerCollection;
     public OrderService(
         IOptions<DatabaseSetting> databaseSetting)
     {
@@ -21,6 +23,7 @@ public class OrderService
         var mongoDatabase = mongoClient.GetDatabase(databaseSetting.Value.DatabaseName);
 
         _OrderCollection = mongoDatabase.GetCollection<Order>(databaseSetting.Value.OrderCollectionName);
+        _importMangagerCollection = mongoDatabase.GetCollection<InventoryManager>(databaseSetting.Value.InventoryManagerCollectionName);
     }
 
     public async Task<List<Order>> GetOrderAsync()
@@ -30,29 +33,73 @@ public class OrderService
     }
     public async Task<Order?> GetOrderAsync(string id) => await _OrderCollection.Find(x => x.id == id).FirstOrDefaultAsync();
 
-    public async Task CreateOrderAsync(Order Order) => await _OrderCollection.InsertOneAsync(Order);
-    public async Task UpdateOrderAsync(string id, Order Order) => await _OrderCollection.ReplaceOneAsync(x => x.id == id, Order);
+    public async Task CreateOrderAsync(Order Order) {
+        
+        await _OrderCollection.InsertOneAsync(Order);
+
+        var productIn = await _importMangagerCollection.Find(x=> x.idStore == Order.OrderStaff.storeId).FirstOrDefaultAsync();
+
+        foreach (var pro in Order.OrderDetails.ToList())
+        {
+            foreach (var item in productIn!.productInStore!.ToList())
+            {
+                if(pro.Product!.id == item.product!.id )
+                {
+                    item.count = item.count - pro.count;
+                    Order.OrderDetails.Remove(pro);
+                    break;
+                }
+            }
+        }
+        await _importMangagerCollection.ReplaceOneAsync(x=>x.id == productIn.id,productIn);
+
+    } 
+    public async Task UpdateOrderAsync(string id ,Order Order) {
+        await RemoveOrderAsync(id);
+        Order.id = id;
+        await CreateOrderAsync(Order);
+    }
     
-    public async Task RemoveOrderAsync(string id) => await _OrderCollection.DeleteOneAsync(x => x.id == id);
+    public async Task RemoveOrderAsync(string id) {
+
+        var order = await _OrderCollection.Find(x=> x.id == id).FirstOrDefaultAsync();
+        var productIn = await _importMangagerCollection.Find(x=> x.idStore == order.OrderStaff.storeId).FirstOrDefaultAsync();
+        foreach (var pro in order.OrderDetails.ToList())
+        {
+            foreach (var item in productIn.productInStore!.ToList())
+            {
+                if(pro.Product!.id == item.product!.id )
+                {
+                    item.count = item.count + pro.count;
+                    order.OrderDetails.Remove(pro);
+                    break;
+                }
+            }
+        }
+        await _importMangagerCollection.ReplaceOneAsync(x=>x.id == productIn.id,productIn);
+
+        await _OrderCollection.DeleteOneAsync(x => x.id == id);
+    } 
 
     public async Task<List<Order>> SearchKeyword(string? startDate, string? endDate, string? keyword)
     {       
         var query = await _OrderCollection.Find(_ => true).ToListAsync();
         if (!string.IsNullOrEmpty(startDate))
         {
-            DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", CultureInfo.GetCultureInfo("vi-VN"));           
-            query = query.Where(x => x.OrderDate >= start).ToList();
+            query = query.Where(x =>
+            DateTime.Parse( DateTime.Parse(x.OrderDate + string.Empty).ToString("dd/MM/yyyy")) >= DateTime.Parse( DateTime.Parse(startDate + string.Empty).ToString("dd/MM/yyyy"))).ToList();
         }
 
         if (!string.IsNullOrEmpty(endDate))
         {
-             DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", CultureInfo.GetCultureInfo("vi-VN"));
-            query = query.Where(x => x.LastEditDate <= end).ToList();
+            query = query.Where(x =>
+            DateTime.Parse( DateTime.Parse(x.OrderDate + string.Empty).ToString("dd/MM/yyyy")) <= DateTime.Parse( DateTime.Parse(endDate + string.Empty).ToString("dd/MM/yyyy"))).ToList();
         }
         if (!string.IsNullOrEmpty(keyword))
         {
-            query = query.Where(x => (x.customer!.first_name + x.customer.last_name ).Contains(keyword) ||
-                            x.customer!.phone!.Contains(keyword)
+            
+            query = query.Where(x => (x.customer.first_name + x.customer.last_name ).Contains(keyword) ||
+                            x.customer.phone.Contains(keyword)
                             ).ToList();
         }
         return query;

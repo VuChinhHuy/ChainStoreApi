@@ -19,6 +19,7 @@ namespace ChainStoreApi.Data;
 
         public string OrderCollectionName {get;set;} = null!;
 
+        public string ProvincesCollectionName {get;set;} = null!;
 
 
 

@@ -1,5 +1,5 @@
 using ChainStoreApi.Models;
-
+using Microsoft.AspNetCore.Mvc;
 
 namespace ChainStoreApi.Services;
 
@@ -24,7 +24,7 @@ public class ProfileStaffService
     {
         var staff = await _staffService.GetStaffAsync(idStaff);
 
-        var account = await _accountService.GetAccountAsync(staff!.accountId);
+        var account = await _accountService.GetAccountAsync(staff?.accountId);
         
         return new ProfileStaff(staff,account!);
     }
@@ -47,5 +47,5 @@ public class ProfileStaffService
         }
         return result;
     }
-    
+
 }

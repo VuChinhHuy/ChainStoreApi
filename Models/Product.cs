@@ -21,7 +21,7 @@ public class Product
 
         public List<Image> image {get;set;} =null!;
         public Category category {get;set;} = null!;
-        public Partner partner {get;set;} = null!;
+        public Partner? partner {get;set;} = null!;
 
         public DateTime? create_at {get;set;}= null!;
         public DateTime? update_at {get;set;}= null!;

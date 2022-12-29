@@ -54,5 +54,7 @@ public class ImportInventoryService
         }
         return result.ToList();
     }
+    public async Task UpdateInventory(string idStore, InventoryManager invent) => await _inventory.UpdateInventoryManager(idStore,invent); 
+    public async Task<InventoryManager?> GetInventoryManagerAsync(string idStore) => await _inventory.GetInventoryManagerAsync(idStore);
 
 }

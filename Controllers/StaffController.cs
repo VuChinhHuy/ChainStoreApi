@@ -14,18 +14,20 @@ namespace ChainStoreApi.Controllers;
         
         private readonly ProfileStaffService _profileStaffServie;
 
+        private readonly StoreService _storeService;
+
         //  public StaffController(StaffService stafftService)=> _staffService = stafftService;
-        public StaffController(StaffService staffService, ProfileStaffService profileStaffServie) 
+        public StaffController(StaffService staffService, ProfileStaffService profileStaffServie, StoreService storeService) 
         {
             _staffService = staffService;
             _profileStaffServie = profileStaffServie;
-            
+            _storeService = storeService;
         }
         
         [HttpGet()]
         public async Task<List<Staff>> Get() => await _staffService.GetStaffAsync();
 
-        [HttpGet("{idstore}")]
+        [HttpGet("idstore/{idstore:length(24)}")]
         public async Task<List<Staff>> GetStaffOfStore(string idstore) => await _staffService.GetStaffInStoreAsync(idstore);
 
 
@@ -61,15 +63,26 @@ namespace ChainStoreApi.Controllers;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post(Staff staff)
+    public async Task<IActionResult> Post(ProfileStaff profile)
     {
-        await _staffService.CreateStaffAsync(staff);
-
-        return CreatedAtAction(nameof(Get), new { id = staff.id }, staff);
+        await _staffService.CreateStaffAsync(profile.staff);
+        var staffnew = CreatedAtAction(nameof(Get), new { id = profile.staff.id }, profile.staff);
+        if(profile.account.role!.ToString().Equals("manager")){
+            var store = await _storeService.GetStoreAsync(profile.staff.storeId);
+            if(store is null)
+             return NotFound();
+            else
+            {   var staff = await  _staffService.GetStaffWithAccountIdAsync(profile.staff.accountId);
+                store.manager = staff?.id;
+                await _storeService.UpdateStoreAsync(store.id!, store);
+            }
+        }
+        return CreatedAtAction(nameof(Get), new { id = profile.staff.id }, profile.staff);
     }
     
 
     [HttpPut("{id:length(24)}")]
+
     public async Task<IActionResult> Update(string id, Staff staffupdate)
     {
         var staff = await _staffService.GetStaffAsync(id);
@@ -86,6 +99,7 @@ namespace ChainStoreApi.Controllers;
         return NoContent();
     }
 
+    [Authorize(Roles ="admin, manager")]
     [HttpDelete("{id:length(24)}")]
     public async Task<IActionResult> Delete(string id)
     {
@@ -95,7 +109,12 @@ namespace ChainStoreApi.Controllers;
         {
             return NotFound();
         }
-
+        var store = await _storeService.GetStoreWithIdManager(staff.id);
+        if(store != null)
+        {
+            store.manager = null;
+            await _storeService.UpdateStoreAsync(store.id,store);
+        }
         await _staffService.RemoveStaffAsync(id!);
 
         return NoContent();

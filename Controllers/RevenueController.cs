@@ -45,4 +45,10 @@ public class revenueController : ControllerBase
         var revenueCLM = _revenueService.GetBetSellingProductStore(id);
         return Ok(revenueCLM);
     }
+    [HttpGet("GetRevenueForStore")]
+    public object GetRevenueForStore()
+    {
+        var revenue = _revenueService.GetRevenueForStore();
+        return Ok(revenue);
+    }
 }

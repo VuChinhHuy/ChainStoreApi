@@ -23,4 +23,6 @@ public class StoreService
     public async Task CreateStoreAsync(Store store) => await _storeService.InsertOneAsync(store);
     public async Task UpdateStoreAsync(string id, Store store) => await _storeService.ReplaceOneAsync(x => x.id == id, store);
     public async Task RemoveStoreAsync(string id) => await _storeService.DeleteOneAsync(x=> x.id == id);
+
+    public async Task<Store?> GetStoreWithIdManager(string idManager) => await _storeService.Find(x=>x.manager == idManager).FirstOrDefaultAsync();
 }

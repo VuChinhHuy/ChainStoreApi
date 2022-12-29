@@ -19,4 +19,8 @@ public class InventoryManager
         this.idStore = idStore;
         this.productInStore = product;
     }
+    public InventoryManager()
+    {
+        
+    }
 }

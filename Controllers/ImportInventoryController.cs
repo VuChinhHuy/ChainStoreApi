@@ -43,5 +43,23 @@ public class ImportInventoryController : ControllerBase
     {
         return await _importInventoryService.getProductInStoreDiff(idProduct);
     } 
+    [HttpPut("updateInventoryManager/{idStore:length(24)}")]
+    public async Task<IActionResult> updateInventoryManager(string idStore, InventoryManager inventUpdate)
+    {
+        var invent = await _importInventoryService.GetInventoryManagerAsync(idStore);
+
+
+        if (invent is null)
+        {
+            return NotFound();
+        }
+
+        inventUpdate.id = invent.id;
+        inventUpdate.idStore = invent.idStore;
+
+        await _importInventoryService.UpdateInventory(invent.id!, inventUpdate);
+
+        return NoContent();
+    }
 
 }
